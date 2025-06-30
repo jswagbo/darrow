@@ -1,0 +1,15 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/files/export/route": "app/api/files/export/route.js",
+  "/auth/page": "app/auth/page.js",
+  "/api/documents/[id]/route": "app/api/documents/[id]/route.js",
+  "/api/generate/route": "app/api/generate/route.js",
+  "/doc/[id]/edit/page": "app/doc/[id]/edit/page.js",
+  "/new/[type]/page": "app/new/[type]/page.js",
+  "/new/page": "app/new/page.js",
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/simple-auth/page": "app/simple-auth/page.js",
+  "/test/page": "app/test/page.js",
+  "/api/documents/route": "app/api/documents/route.js"
+}
