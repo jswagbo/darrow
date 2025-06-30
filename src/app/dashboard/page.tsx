@@ -42,8 +42,11 @@ export default function DashboardPage() {
   })
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+    
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -141,7 +144,7 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-black">
         <header className="border-b border-gray-light">
