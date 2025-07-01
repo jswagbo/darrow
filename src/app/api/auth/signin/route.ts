@@ -13,10 +13,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Determine the redirect URL based on environment
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://constructa-starter-min-main-jeff-nwagbos-projects-6f9cdfa7.vercel.app'
+      : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    
+    console.log('Magic link redirect URL:', `${baseUrl}/dashboard`)
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://constructa-starter-min-main-jeff-nwagbos-projects-6f9cdfa7.vercel.app'}/dashboard`
+        emailRedirectTo: `${baseUrl}/dashboard`
       }
     })
 

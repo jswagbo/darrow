@@ -598,6 +598,29 @@ Complete, production-ready AI Law Agent MVP deployed to Vercel with full end-to-
 - Features polished black/white/silver UI/UX with comprehensive accessibility support
 - **LIVE IN PRODUCTION** with all 6 phases of development completed successfully and fully operational
 
+## Critical Issue Identified: Magic Link Redirect Problem
+
+**Problem Analysis:**
+The Supabase magic link authentication is redirecting users to `localhost:3000` instead of the production URL `https://constructa-starter-min-main-jeff-nwagbos-projects-6f9cdfa7.vercel.app`. This breaks the authentication flow for production users.
+
+**Root Cause Investigation Required:**
+1. **Environment Variable Configuration**: Check if `NEXT_PUBLIC_APP_URL` is properly set in Vercel
+2. **Supabase Dashboard Settings**: Verify redirect URLs are configured for production domain
+3. **API Route Implementation**: Examine `/api/auth/signin` route for hardcoded localhost references
+4. **Auth Configuration**: Check if Supabase client is using correct environment variables
+
+**Impact Assessment:**
+- **Critical**: Authentication flow is broken for production users
+- **User Experience**: Users cannot complete sign-in process
+- **Production Readiness**: Application not fully functional despite successful deployment
+
+**Next Steps:**
+1. Audit environment variables in Vercel dashboard
+2. Check Supabase project settings for allowed redirect URLs
+3. Review authentication API implementation
+4. Test magic link generation with production URLs
+5. Update any hardcoded localhost references
+
 ## Lessons
 
 **Pre-Implementation Insights:**
@@ -606,3 +629,8 @@ Complete, production-ready AI Law Agent MVP deployed to Vercel with full end-to-
 - Legal document generation requires careful validation to prevent legal language modification
 - Rich text editor integration with DOCX export requires careful formatting preservation
 - Authentication should be as simple as possible to reduce onboarding friction
+
+**Production Deployment Insights:**
+- Always verify magic link redirect URLs point to production domain
+- Environment variables must be thoroughly tested in production environment
+- Supabase authentication settings require separate configuration for production vs development
