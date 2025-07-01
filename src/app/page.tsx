@@ -23,7 +23,7 @@ export default function HomePage() {
           </Link>
           
           <Link 
-            href="/auth" 
+            href="/auth-simple" 
             className="btn-silver-outline px-8 py-4 rounded-lg text-lg font-semibold inline-flex items-center justify-center"
           >
             Sign In
