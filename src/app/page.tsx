@@ -16,7 +16,7 @@ export default function HomePage() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link 
-            href="/dashboard" 
+            href="/auth-simple" 
             className="btn-silver px-8 py-4 rounded-lg text-lg font-semibold inline-flex items-center justify-center"
           >
             Get Started
