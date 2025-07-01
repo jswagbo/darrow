@@ -32,7 +32,7 @@ interface DashboardStats {
   }
 }
 
-export function DashboardContent() {
+export default function DashboardContent() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [stats, setStats] = useState<DashboardStats>({
     totalDocs: 0,

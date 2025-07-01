@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, Zap } from 'lucide-react'
 
 // Dynamic import to prevent SSR issues
-const AuthForm = dynamic(() => import('@/components/AuthForm').then(mod => ({ default: mod.AuthForm })), {
+const AuthForm = dynamic(() => import('@/components/AuthForm'), {
   ssr: false,
   loading: () => (
     <div className="card-glossy p-8 rounded-lg">

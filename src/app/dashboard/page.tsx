@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { PageHeaderSkeleton } from '@/components/ui/skeleton'
 
 // Dynamic import to prevent SSR issues
-const DashboardContent = dynamic(() => import('@/components/DashboardContent').then(mod => ({ default: mod.DashboardContent })), {
+const DashboardContent = dynamic(() => import('@/components/DashboardContent'), {
   ssr: false,
   loading: () => (
     <div>
