@@ -60,7 +60,7 @@ export async function generateDocument(
       }
     }
 
-    // Validate the generated document
+    // Validate and auto-fill the generated document
     const validation = validateGeneratedDocument(docType, generatedContent)
     
     if (!validation.isValid) {
@@ -70,9 +70,12 @@ export async function generateDocument(
       }
     }
 
+    // Use the auto-filled content if available, otherwise use original
+    const finalContent = validation.content || generatedContent
+
     return {
       success: true,
-      content: generatedContent,
+      content: finalContent,
       usage: completion.usage ? {
         prompt_tokens: completion.usage.prompt_tokens,
         completion_tokens: completion.usage.completion_tokens,
@@ -189,7 +192,7 @@ export async function generateDocumentStream(
       }
     }
 
-    // Validate the final document
+    // Validate and auto-fill the final document
     const validation = validateGeneratedDocument(docType, fullContent)
     
     if (!validation.isValid) {
@@ -199,9 +202,12 @@ export async function generateDocumentStream(
       }
     }
 
+    // Use the auto-filled content if available, otherwise use original
+    const finalContent = validation.content || fullContent
+
     return {
       success: true,
-      content: fullContent
+      content: finalContent
     }
 
   } catch (error) {

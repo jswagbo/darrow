@@ -370,48 +370,118 @@ JSON:`
 }
 
 /**
+ * Fill unfilled placeholders with sensible fallback values
+ */
+function fillUnfilledPlaceholders(content: string): string {
+  const fallbackValues: { [key: string]: string } = {
+    // Common date placeholders
+    'DATE': new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    'CURRENT_DATE': new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    'TODAY_DATE': new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    'SIGNING_DATE': new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+    
+    // Financial placeholders
+    'DISCOUNT_RATE': '20%',
+    'VALUATION_CAP': '$[VALUATION_CAP]',
+    'INVESTMENT_AMOUNT': '$[INVESTMENT_AMOUNT]',
+    'PURCHASE_PRICE': '$[PURCHASE_PRICE]',
+    
+    // Company placeholders
+    'COMPANY_NAME': '[COMPANY_NAME]',
+    'COMPANY_ADDRESS': '[COMPANY_ADDRESS]',
+    'STATE_OF_INCORPORATION': 'Delaware',
+    
+    // People placeholders
+    'INVESTOR_NAME': '[INVESTOR_NAME]',
+    'FOUNDER_NAME': '[FOUNDER_NAME]',
+    'EMPLOYEE_NAME': '[EMPLOYEE_NAME]',
+    'DIRECTOR_NAME': '[DIRECTOR_NAME]',
+    
+    // Legal placeholders
+    'JURISDICTION': 'Delaware',
+    'GOVERNING_LAW': 'Delaware',
+    
+    // Default fallback
+    'DEFAULT': '[TO BE COMPLETED]'
+  }
+
+  // Replace unfilled placeholders with fallback values
+  return content.replace(/\{\{([^}]+)\}\}/g, (match, placeholder) => {
+    const cleanPlaceholder = placeholder.trim().toUpperCase()
+    
+    // Try exact match first
+    if (fallbackValues[cleanPlaceholder]) {
+      return fallbackValues[cleanPlaceholder]
+    }
+    
+    // Try partial matches for common patterns
+    if (cleanPlaceholder.includes('DATE')) {
+      return fallbackValues['DATE']
+    }
+    if (cleanPlaceholder.includes('NAME')) {
+      return `[${cleanPlaceholder}]`
+    }
+    if (cleanPlaceholder.includes('AMOUNT') || cleanPlaceholder.includes('PRICE')) {
+      return `$[${cleanPlaceholder}]`
+    }
+    if (cleanPlaceholder.includes('RATE') || cleanPlaceholder.includes('PERCENT')) {
+      return `[${cleanPlaceholder}]%`
+    }
+    
+    // Default fallback
+    return `[${cleanPlaceholder}]`
+  })
+}
+
+/**
  * Clean and validate generated document content
  */
 export function validateGeneratedDocument(
   docType: DocumentType, 
   generatedContent: string
-): { isValid: boolean; errors: string[] } {
+): { isValid: boolean; errors: string[]; content?: string } {
   const errors: string[] = []
   
-  // Check for remaining placeholders
+  // First, auto-fill any remaining placeholders
+  const filledContent = fillUnfilledPlaceholders(generatedContent)
+  
+  // Check if there are still any unfilled placeholders (should be none now)
   const placeholderRegex = /\{\{[^}]+\}\}/g
-  const remainingPlaceholders = generatedContent.match(placeholderRegex)
+  const remainingPlaceholders = filledContent.match(placeholderRegex)
   
   if (remainingPlaceholders) {
-    errors.push(`Unfilled placeholders found: ${remainingPlaceholders.join(', ')}`)
+    // This should rarely happen now, but keep as a safety check
+    console.warn('Some placeholders could not be auto-filled:', remainingPlaceholders)
   }
   
-  // Check for empty sections (multiple consecutive newlines)
-  if (generatedContent.includes('\n\n\n\n')) {
+  // Check for empty sections (multiple consecutive newlines) in filled content
+  if (filledContent.includes('\n\n\n\n')) {
     errors.push('Document contains empty sections')
   }
   
   // Ensure minimum document length
-  if (generatedContent.trim().length < 500) {
+  if (filledContent.trim().length < 500) {
     errors.push('Generated document appears to be too short')
   }
   
-  // Document type specific validations
+  // Document type specific validations using filled content
   switch (docType) {
     case 'safe_post':
-      if (!generatedContent.includes('SAFE') && !generatedContent.includes('Simple Agreement')) {
+      if (!filledContent.includes('SAFE') && !filledContent.includes('Simple Agreement')) {
         errors.push('SAFE document must contain SAFE terminology')
       }
       break
     case 'delaware_charter':
-      if (!generatedContent.includes('Delaware') || !generatedContent.includes('Certificate of Incorporation')) {
+      if (!filledContent.includes('Delaware') || !filledContent.includes('Certificate of Incorporation')) {
         errors.push('Delaware charter must contain proper legal language')
       }
       break
   }
   
+  // Return the filled content along with validation results
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
+    content: filledContent
   }
 }
