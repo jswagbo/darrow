@@ -116,7 +116,7 @@ function createLegalParagraph(text: string): Paragraph {
       left: isIndentedSection ? 720 : isLetterSection ? 360 : 0, // Indent subsections
       hanging: isNumberedSection ? 360 : 0 // Hanging indent for numbered items
     },
-    alignment: AlignmentType.JUSTIFY // Justify text for legal docs
+    alignment: AlignmentType.BOTH // Justify text for legal docs
   })
 }
 
