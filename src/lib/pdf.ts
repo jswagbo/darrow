@@ -35,10 +35,10 @@ export async function generatePdf(options: PdfGenerationOptions): Promise<Uint8A
   let page = pdfDoc.addPage()
   const { width, height } = page.getSize()
   
-  // Page margins
-  const margin = 50
+  // Professional legal document margins (1 inch = 72 points)
+  const margin = 72
   const contentWidth = width - (margin * 2)
-  const lineHeight = 14
+  const lineHeight = 16 // Increased for better readability
   let currentY = height - margin
   
   // Helper function to add new page if needed
@@ -49,30 +49,27 @@ export async function generatePdf(options: PdfGenerationOptions): Promise<Uint8A
     }
   }
   
-  // Draw title
-  const titleFontSize = 18
-  addNewPageIfNeeded(titleFontSize + 20)
+  // Draw title (centered and properly formatted)
+  const titleFontSize = 16
+  const titleText = title.toUpperCase()
+  const titleWidth = boldFont.widthOfTextAtSize(titleText, titleFontSize)
+  const titleX = (width - titleWidth) / 2 // Center the title
   
-  page.drawText(title, {
-    x: margin,
+  addNewPageIfNeeded(titleFontSize + 30)
+  
+  page.drawText(titleText, {
+    x: titleX,
     y: currentY,
     size: titleFontSize,
     font: boldFont,
     color: rgb(0, 0, 0),
   })
   
-  currentY -= titleFontSize + 20
+  currentY -= titleFontSize + 40 // More space after title
   
-  // Process content - simple HTML to text conversion
+  // Process content with better paragraph handling
   const cleanContent = content
-    .replace(/<h[1-6][^>]*>/g, '\n\n') // Headers
-    .replace(/<\/h[1-6]>/g, '\n')
-    .replace(/<p[^>]*>/g, '\n')
-    .replace(/<\/p>/g, '\n')
-    .replace(/<br\s*\/?>/g, '\n')
-    .replace(/<strong[^>]*>|<\/strong>/g, '') // Remove bold tags for now
-    .replace(/<em[^>]*>|<\/em>/g, '') // Remove italic tags for now
-    .replace(/<[^>]*>/g, '') // Remove all other HTML tags
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -80,19 +77,79 @@ export async function generatePdf(options: PdfGenerationOptions): Promise<Uint8A
     .replace(/&quot;/g, '"')
     .trim()
   
-  // Split content into lines that fit the page width
-  const words = cleanContent.split(/\s+/)
-  let currentLine = ''
-  const fontSize = 12
+  // Split into paragraphs and handle each separately
+  const paragraphs = cleanContent
+    .split(/\n\s*\n/)
+    .map(p => p.trim())
+    .filter(p => p.length > 0)
   
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word
-    const textWidth = font.widthOfTextAtSize(testLine, fontSize)
+  const fontSize = 11 // Standard legal document font size
+  const paragraphSpacing = 6 // Space between paragraphs
+  
+  for (const paragraph of paragraphs) {
+    // Check if this is a heading (all caps, short, contains legal keywords)
+    const isHeading = (
+      paragraph.length < 100 && 
+      (paragraph === paragraph.toUpperCase() || 
+       paragraph.includes('CERTIFICATE') || 
+       paragraph.includes('AGREEMENT') ||
+       paragraph.includes('RESOLVED') ||
+       paragraph.includes('WHEREAS') ||
+       paragraph.includes('ARTICLE'))
+    )
     
-    if (textWidth <= contentWidth) {
-      currentLine = testLine
+    if (isHeading) {
+      // Format as heading
+      const headingFontSize = 12
+      const headingText = paragraph.toUpperCase()
+      addNewPageIfNeeded(headingFontSize + paragraphSpacing)
+      
+      // Center headings for main titles
+      const isCentered = paragraph.includes('CERTIFICATE') || paragraph.includes('AGREEMENT')
+      const textWidth = boldFont.widthOfTextAtSize(headingText, headingFontSize)
+      const x = isCentered ? (width - textWidth) / 2 : margin
+      
+      page.drawText(headingText, {
+        x: x,
+        y: currentY,
+        size: headingFontSize,
+        font: boldFont,
+        color: rgb(0, 0, 0),
+      })
+      
+      currentY -= headingFontSize + paragraphSpacing * 2
     } else {
-      // Draw current line and start new one
+      // Handle as regular paragraph with word wrapping
+      const words = paragraph.split(/\s+/)
+      let currentLine = ''
+      
+      for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word
+        const textWidth = font.widthOfTextAtSize(testLine, fontSize)
+        
+        if (textWidth <= contentWidth) {
+          currentLine = testLine
+        } else {
+          // Draw current line and start new one
+          if (currentLine) {
+            addNewPageIfNeeded(lineHeight)
+            
+            page.drawText(currentLine, {
+              x: margin,
+              y: currentY,
+              size: fontSize,
+              font: font,
+              color: rgb(0, 0, 0),
+            })
+            
+            currentY -= lineHeight
+          }
+          
+          currentLine = word
+        }
+      }
+      
+      // Draw the last line of the paragraph
       if (currentLine) {
         addNewPageIfNeeded(lineHeight)
         
@@ -107,21 +164,9 @@ export async function generatePdf(options: PdfGenerationOptions): Promise<Uint8A
         currentY -= lineHeight
       }
       
-      currentLine = word
+      // Add space between paragraphs
+      currentY -= paragraphSpacing
     }
-  }
-  
-  // Draw the last line
-  if (currentLine) {
-    addNewPageIfNeeded(lineHeight)
-    
-    page.drawText(currentLine, {
-      x: margin,
-      y: currentY,
-      size: fontSize,
-      font: font,
-      color: rgb(0, 0, 0),
-    })
   }
   
   // Add footer with page numbers
