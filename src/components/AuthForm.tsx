@@ -32,7 +32,7 @@ export default function AuthForm() {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://constructa-starter-min-main-jeff-nwagbos-projects-6f9cdfa7.vercel.app')}/dashboard`
+          emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : 'https://constructa-starter-min-main-jeff-nwagbos-projects-6f9cdfa7.vercel.app'}/dashboard`
         }
       })
 

@@ -1,6 +1,6 @@
 import OpenAI from 'openai'
 import { DocumentType } from './utils'
-import { buildPrompt, buildExtractionPrompt, validateGeneratedDocument } from './promptEngine'
+import { buildPrompt, buildExtractionPrompt, validateGeneratedDocument } from './promptEngine-serverless'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -35,7 +35,7 @@ export async function generateDocument(
     const prompt = buildPrompt(docType, userInput, additionalContext)
     
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+      model: (process.env.OPENAI_MODEL || 'gpt-4-turbo').trim(),
       messages: [
         {
           role: 'system',
@@ -101,7 +101,7 @@ export async function extractDocumentData(
     const prompt = buildExtractionPrompt(docType, userInput)
     
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+      model: (process.env.OPENAI_MODEL || 'gpt-4-turbo').trim(),
       messages: [
         {
           role: 'system',
@@ -162,7 +162,7 @@ export async function generateDocumentStream(
     const prompt = buildPrompt(docType, userInput, additionalContext)
     
     const stream = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+      model: (process.env.OPENAI_MODEL || 'gpt-4-turbo').trim(),
       messages: [
         {
           role: 'system',
@@ -220,7 +220,7 @@ export async function generateDocumentStream(
 export async function testOpenAIConnection(): Promise<{ success: boolean; error?: string }> {
   try {
     const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+      model: (process.env.OPENAI_MODEL || 'gpt-4-turbo').trim(),
       messages: [
         {
           role: 'user',

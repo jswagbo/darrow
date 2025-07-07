@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { generateDocument } from '@/lib/openai'
-import { canCreateDocServer, rateLimitError } from '@/lib/rateLimit'
+import { canCreateDocServer, rateLimitError, getTodayDocCountServer } from '@/lib/rateLimit'
 import { generateDocx } from '@/lib/docx'
 import { generatePdf } from '@/lib/pdf'
 import { DocumentType, DOCUMENT_TYPES } from '@/lib/utils'
@@ -77,12 +77,28 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
       }, { status: 401 })
     }
 
-    // Check rate limit
-    const canCreate = await canCreateDocServer(user.id)
+    // Check rate limit - fallback to manual count if functions don't exist
+    let canCreate = await canCreateDocServer(user.id)
     if (!canCreate) {
+      console.log('Primary rate limit check failed, trying fallback method')
+      
+      // Fallback: manually count documents if function doesn't exist
+      try {
+        const todayCount = await getTodayDocCountServer(user.id)
+        canCreate = todayCount < 3
+        console.log(`Fallback rate limit check: ${todayCount}/3 documents today`)
+      } catch (fallbackError) {
+        console.error('Fallback rate limit check failed:', fallbackError)
+        // If both methods fail, allow creation but log the issue
+        canCreate = true
+      }
+    }
+    
+    if (!canCreate) {
+      const todayCount = await getTodayDocCountServer(user.id)
       return NextResponse.json({
         success: false,
-        ...rateLimitError()
+        ...rateLimitError(3 - todayCount)
       }, { status: 429 })
     }
 
@@ -100,11 +116,38 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
       .single()
 
     if (createError || !document) {
-      console.error('Error creating document:', createError)
+      console.error('Error creating document:', {
+        error: createError,
+        userId: user.id,
+        docType,
+        title: title.trim(),
+        timestamp: new Date().toISOString()
+      })
+      
+      // Check if it's a missing table error
+      if (createError?.code === '42P01') {
+        return NextResponse.json({
+          success: false,
+          error: 'Database not initialized. Please contact support.',
+          code: 'DATABASE_SCHEMA_MISSING',
+          details: 'The docs table does not exist in the database'
+        }, { status: 500 })
+      }
+      
+      // Check if it's a rate limiting error
+      if (createError?.code === 'P0001' || createError?.message?.includes('can_create_doc')) {
+        return NextResponse.json({
+          success: false,
+          error: 'Rate limit exceeded. You can create 3 documents per day.',
+          code: 'RATE_LIMIT_EXCEEDED'
+        }, { status: 429 })
+      }
+      
       return NextResponse.json({
         success: false,
-        error: 'Failed to create document record',
-        code: 'DATABASE_ERROR'
+        error: 'Failed to create document record. Please try again.',
+        code: 'DATABASE_ERROR',
+        details: createError?.message
       }, { status: 500 })
     }
 

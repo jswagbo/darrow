@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         success: openaiTest.success,
         error: openaiTest.error,
         apiKey: process.env.OPENAI_API_KEY ? 'SET' : 'MISSING',
-        model: process.env.OPENAI_MODEL || 'DEFAULT'
+        model: (process.env.OPENAI_MODEL || 'DEFAULT').trim()
       }
     } catch (error) {
       tests.tests.openai = {

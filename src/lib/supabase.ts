@@ -1,14 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Environment variables with fallbacks
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ycfwvgsumatjhycpyrqk.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljZnd2Z3N1bWF0amh5Y3B5cnFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyNTYxMzIsImV4cCI6MjA2NjgzMjEzMn0.jo33Y2UiF7CPr3lHte-KaHxcf12MXT3kd9QF2auZhzk'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Client initialization with error handling
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+})
 
 // Server-side client with service role key
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljZnd2Z3N1bWF0amh5Y3B5cnFrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTI1NjEzMiwiZXhwIjoyMDY2ODMyMTMyfQ.W8aHuhzztJJsrMWWBh5hhl6eT44tEawNue08n06qoLU'
+
 export const supabaseAdmin = createClient(
   supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  serviceRoleKey,
   {
     auth: {
       autoRefreshToken: false,

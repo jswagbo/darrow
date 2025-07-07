@@ -59,13 +59,29 @@ export async function canCreateDocServer(userId: string): Promise<boolean> {
       .rpc('can_create_doc', { uid: userId })
 
     if (error) {
-      console.error('Error in server rate limit check:', error)
+      console.error('Error in server rate limit check:', {
+        error,
+        userId,
+        timestamp: new Date().toISOString(),
+        errorCode: error.code,
+        errorMessage: error.message
+      })
+      
+      // If the function doesn't exist, treat as schema missing
+      if (error.code === 'PGRST202') {
+        console.error('Database function can_create_doc does not exist - schema not applied')
+      }
+      
       return false
     }
 
     return data === true
   } catch (error) {
-    console.error('Error in canCreateDocServer:', error)
+    console.error('Error in canCreateDocServer:', {
+      error,
+      userId,
+      timestamp: new Date().toISOString()
+    })
     return false
   }
 }
