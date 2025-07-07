@@ -5,7 +5,8 @@ import {
   TextRun, 
   HeadingLevel,
   AlignmentType,
-  UnderlineType
+  UnderlineType,
+  PageBreak
 } from 'docx'
 import { DocumentType } from './utils'
 
@@ -23,7 +24,7 @@ export interface DocxGenerationOptions {
 /**
  * Convert text content to properly formatted DOCX paragraphs for legal documents
  */
-function textToDocxParagraphs(content: string): Paragraph[] {
+function textToDocxParagraphs(content: string, docType?: DocumentType): Paragraph[] {
   const paragraphs: Paragraph[] = []
   
   // Split content into sections by double line breaks
@@ -33,10 +34,25 @@ function textToDocxParagraphs(content: string): Paragraph[] {
     .map(section => section.trim())
     .filter(section => section.length > 0)
 
-  for (const section of sections) {
+  for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+    const section = sections[sectionIndex]
     const lines = section.split('\n').map(line => line.trim()).filter(line => line.length > 0)
     
     if (lines.length === 0) continue
+
+    // Special handling for offer letters
+    if (docType === 'offer_letter') {
+      // Check if this is the signature section (contains "I have read and understood")
+      if (section.includes('I have read and understood')) {
+        // Add page break before signature section for offer letters
+        paragraphs.push(
+          new Paragraph({
+            children: [new PageBreak()],
+            spacing: { after: 240 }
+          })
+        )
+      }
+    }
 
     // Check if this is a title/heading (all caps, short, or contains specific keywords)
     const firstLine = lines[0]
@@ -48,7 +64,8 @@ function textToDocxParagraphs(content: string): Paragraph[] {
        firstLine.includes('RESOLVED') ||
        firstLine.includes('WHEREAS') ||
        firstLine.includes('ARTICLE') ||
-       firstLine.includes('SECTION'))
+       firstLine.includes('SECTION') ||
+       firstLine.includes('Re:'))
     )
 
     if (isTitle) {
@@ -60,7 +77,8 @@ function textToDocxParagraphs(content: string): Paragraph[] {
               text: firstLine,
               bold: true,
               size: 24, // 12pt
-              allCaps: firstLine === firstLine.toUpperCase()
+              allCaps: firstLine === firstLine.toUpperCase(),
+              font: "Times New Roman"
             })
           ],
           alignment: firstLine.includes('CERTIFICATE') || firstLine.includes('AGREEMENT') ? 
@@ -77,9 +95,15 @@ function textToDocxParagraphs(content: string): Paragraph[] {
         paragraphs.push(createLegalParagraph(lines[i]))
       }
     } else {
-      // Join all lines and create a single paragraph
-      const fullText = lines.join(' ')
-      paragraphs.push(createLegalParagraph(fullText))
+      // Special formatting for offer letter signature lines
+      if (docType === 'offer_letter' && section.includes('Date signed:')) {
+        // Format signature section specially
+        paragraphs.push(createSignatureParagraph(section))
+      } else {
+        // Join all lines and create a single paragraph
+        const fullText = lines.join(' ')
+        paragraphs.push(createLegalParagraph(fullText))
+      }
     }
   }
 
@@ -89,6 +113,42 @@ function textToDocxParagraphs(content: string): Paragraph[] {
   }
 
   return paragraphs
+}
+
+/**
+ * Create a specially formatted signature paragraph for offer letters
+ */
+function createSignatureParagraph(text: string): Paragraph {
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+  const children: (TextRun)[] = []
+  
+  for (const line of lines) {
+    if (line.includes('Date signed:')) {
+      // Format the signature line with proper spacing
+      children.push(
+        new TextRun({
+          text: '\t\tDate signed: _______________\t',
+          size: 22,
+          font: "Times New Roman"
+        })
+      )
+    } else {
+      children.push(
+        new TextRun({
+          text: line,
+          size: 22,
+          font: "Times New Roman"
+        })
+      )
+    }
+    children.push(new TextRun({ text: '\n' }))
+  }
+
+  return new Paragraph({
+    children,
+    spacing: { after: 240 },
+    alignment: AlignmentType.LEFT
+  })
 }
 
 /**
@@ -128,7 +188,7 @@ export async function generateDocx(options: DocxGenerationOptions): Promise<Uint
   
   // Clean content and convert to paragraphs
   const cleanContent = content.replace(/<[^>]*>/g, '') // Remove any HTML tags
-  const paragraphs = textToDocxParagraphs(cleanContent)
+  const paragraphs = textToDocxParagraphs(cleanContent, docType)
   
   // Add title at the beginning with professional legal formatting
   const documentParagraphs = [
