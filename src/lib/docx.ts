@@ -6,7 +6,30 @@ import {
   HeadingLevel,
   AlignmentType,
   UnderlineType,
-  PageBreak
+  PageBreak,
+  Table,
+  TableRow,
+  TableCell,
+  BorderStyle,
+  Header,
+  Footer,
+  PageNumber,
+  NumberFormat,
+  SectionType,
+  WidthType,
+  TableLayoutType,
+  VerticalAlign,
+  Shading,
+  ShadingType,
+  Tab,
+  TabStopPosition,
+  TabStopType,
+  LevelFormat,
+  convertInchesToTwip,
+  ExternalHyperlink,
+  InternalHyperlink,
+  BookmarkStart,
+  BookmarkEnd
 } from 'docx'
 import { DocumentType } from './utils'
 
@@ -19,6 +42,73 @@ export interface DocxGenerationOptions {
     company?: string
     created?: Date
   }
+  formatting?: DocumentFormatting
+}
+
+export interface DocumentFormatting {
+  useHeaders?: boolean
+  useFooters?: boolean
+  pageNumbering?: boolean
+  caseTitle?: string
+  courtName?: string
+  useTableOfContents?: boolean
+  styles?: CustomStyles
+}
+
+export interface CustomStyles {
+  headingStyles?: HeadingStyle[]
+  paragraphStyles?: ParagraphStyle[]
+  characterStyles?: CharacterStyle[]
+}
+
+export interface HeadingStyle {
+  level: number
+  fontSize: number
+  fontFamily?: string
+  bold?: boolean
+  color?: string
+  spacing?: { before?: number; after?: number }
+  numbering?: NumberingStyle
+}
+
+export interface ParagraphStyle {
+  name: string
+  fontSize: number
+  fontFamily?: string
+  alignment?: typeof AlignmentType[keyof typeof AlignmentType]
+  indent?: { left?: number; right?: number; firstLine?: number }
+  spacing?: { before?: number; after?: number; line?: number }
+}
+
+export interface CharacterStyle {
+  name: string
+  fontSize?: number
+  fontFamily?: string
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
+  color?: string
+}
+
+export interface NumberingStyle {
+  format: typeof LevelFormat[keyof typeof LevelFormat]
+  prefix?: string
+  suffix?: string
+  start?: number
+}
+
+export interface TableData {
+  headers: string[]
+  rows: string[][]
+  style?: TableStyle
+}
+
+export interface TableStyle {
+  borders?: boolean
+  headerShading?: boolean
+  alternatingRows?: boolean
+  width?: number
+  alignment?: typeof AlignmentType[keyof typeof AlignmentType]
 }
 
 /**
@@ -227,10 +317,10 @@ function createLegalParagraph(text: string): Paragraph {
 }
 
 /**
- * Generate DOCX document from content
+ * Generate DOCX document from content with enhanced formatting
  */
 export async function generateDocx(options: DocxGenerationOptions): Promise<Uint8Array> {
-  const { title, content, docType, metadata } = options
+  const { title, content, docType, metadata, formatting } = options
   
   // Clean content and convert to paragraphs
   const cleanContent = content.replace(/<[^>]*>/g, '') // Remove any HTML tags
@@ -256,8 +346,17 @@ export async function generateDocx(options: DocxGenerationOptions): Promise<Uint
     }),
     ...paragraphs
   ]
+
+  // Create headers and footers if specified
+  const headers = formatting?.useHeaders ? {
+    default: createLegalHeader(formatting)
+  } : undefined
+
+  const footers = formatting?.useFooters || formatting?.pageNumbering ? {
+    default: createLegalFooter(formatting)
+  } : undefined
   
-  // Create document with professional legal document settings
+  // Create document with enhanced legal document settings
   const doc = new Document({
     creator: metadata?.author || 'Darrow',
     title: title,
@@ -269,35 +368,69 @@ export async function generateDocx(options: DocxGenerationOptions): Promise<Uint
         properties: {
           page: {
             margin: {
-              top: 1440,    // 1 inch (1440 twips)
+              top: formatting?.useHeaders ? 2160 : 1440,    // 1.5" if header, 1" otherwise
               right: 1440,  // 1 inch
-              bottom: 1440, // 1 inch
+              bottom: formatting?.useFooters ? 2160 : 1440, // 1.5" if footer, 1" otherwise
               left: 1800    // 1.25 inches (1800 twips) - Legal standard for binding
             },
             size: {
               width: 12240,  // 8.5 inches (12240 twips)
               height: 20160  // 14 inches (20160 twips) - US Legal paper
-            }
-          }
+            },
+            pageNumbers: formatting?.pageNumbering ? {
+              start: 1,
+              formatType: NumberFormat.DECIMAL
+            } : undefined
+          },
+          type: SectionType.CONTINUOUS
         },
+        headers,
+        footers,
         children: documentParagraphs
       }
     ],
-    styles: {
-      default: {
-        document: {
-          run: {
-            font: "Times New Roman",
-            size: 24 // 12pt default
-          },
-          paragraph: {
-            spacing: {
-              line: 480, // 24pt exact line spacing (legal standard)
-              after: 240 // 12pt after paragraphs
+    styles: createLegalStyles(),
+    numbering: {
+      config: [
+        {
+          reference: "legal-numbering",
+          levels: [
+            {
+              level: 0,
+              format: LevelFormat.DECIMAL,
+              text: "%1.",
+              alignment: AlignmentType.LEFT,
+              style: {
+                paragraph: {
+                  indent: { left: convertInchesToTwip(0.5), hanging: convertInchesToTwip(0.25) }
+                }
+              }
+            },
+            {
+              level: 1, 
+              format: LevelFormat.LOWER_LETTER,
+              text: "(%2)",
+              alignment: AlignmentType.LEFT,
+              style: {
+                paragraph: {
+                  indent: { left: convertInchesToTwip(1.0), hanging: convertInchesToTwip(0.25) }
+                }
+              }
+            },
+            {
+              level: 2,
+              format: LevelFormat.LOWER_ROMAN,
+              text: "%3.",
+              alignment: AlignmentType.LEFT,
+              style: {
+                paragraph: {
+                  indent: { left: convertInchesToTwip(1.5), hanging: convertInchesToTwip(0.25) }
+                }
+              }
             }
-          }
+          ]
         }
-      }
+      ]
     }
   })
 
@@ -356,12 +489,409 @@ export function downloadDocx(buffer: Uint8Array, filename: string) {
 }
 
 /**
- * Convert HTML table to DOCX table (for future use)
+ * Create a professional table for legal documents
  */
-export function htmlTableToDocx(htmlTable: string) {
-  // Placeholder for table conversion
-  // This would parse HTML tables and convert to DOCX format
-  return []
+export function createLegalTable(tableData: TableData): Table {
+  const { headers, rows, style = {} } = tableData
+  
+  // Default legal table style
+  const defaultStyle: TableStyle = {
+    borders: true,
+    headerShading: true,
+    alternatingRows: false,
+    width: 100,
+    alignment: AlignmentType.LEFT,
+    ...style
+  }
+
+  // Create header row
+  const headerCells = headers.map(header => 
+    new TableCell({
+      children: [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: header,
+              bold: true,
+              size: 24, // 12pt
+              font: "Times New Roman"
+            })
+          ],
+          alignment: AlignmentType.CENTER
+        })
+      ],
+      shading: defaultStyle.headerShading ? {
+        type: ShadingType.SOLID,
+        color: "E7E7E7", // Light gray
+        fill: "E7E7E7"
+      } : undefined,
+      margins: {
+        top: convertInchesToTwip(0.08),
+        bottom: convertInchesToTwip(0.08),
+        left: convertInchesToTwip(0.08),
+        right: convertInchesToTwip(0.08)
+      },
+      verticalAlign: VerticalAlign.CENTER
+    })
+  )
+
+  // Create data rows
+  const dataRows = rows.map((row, rowIndex) => 
+    new TableRow({
+      children: row.map(cellText => 
+        new TableCell({
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: cellText,
+                  size: 22, // 11pt
+                  font: "Times New Roman"
+                })
+              ],
+              alignment: AlignmentType.LEFT
+            })
+          ],
+          shading: (defaultStyle.alternatingRows && rowIndex % 2 === 1) ? {
+            type: ShadingType.SOLID,
+            color: "F8F8F8", // Very light gray
+            fill: "F8F8F8"
+          } : undefined,
+          margins: {
+            top: convertInchesToTwip(0.08),
+            bottom: convertInchesToTwip(0.08),
+            left: convertInchesToTwip(0.08),
+            right: convertInchesToTwip(0.08)
+          },
+          verticalAlign: VerticalAlign.TOP
+        })
+      )
+    })
+  )
+
+  // Create table with professional legal styling
+  return new Table({
+    rows: [
+      new TableRow({
+        children: headerCells,
+        tableHeader: true
+      }),
+      ...dataRows
+    ],
+    width: {
+      size: defaultStyle.width || 100,
+      type: WidthType.PERCENTAGE
+    },
+    layout: TableLayoutType.AUTOFIT,
+    borders: defaultStyle.borders ? {
+      top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" }
+    } : undefined,
+    alignment: defaultStyle.alignment,
+    margins: {
+      top: 240, // 12pt
+      bottom: 240 // 12pt
+    }
+  })
+}
+
+/**
+ * Convert HTML table to DOCX table
+ */
+export function htmlTableToDocx(htmlTable: string): Table[] {
+  // Basic HTML table parsing - can be enhanced for more complex tables
+  const tableRegex = /<table[^>]*>(.*?)<\/table>/gi
+  const rowRegex = /<tr[^>]*>(.*?)<\/tr>/gi
+  const cellRegex = /<t[hd][^>]*>(.*?)<\/t[hd]>/gi
+  
+  const tables: Table[] = []
+  const tableMatches = htmlTable.match(tableRegex)
+  
+  if (tableMatches) {
+    for (const tableMatch of tableMatches) {
+      const rows: string[][] = []
+      let isFirstRow = true
+      
+      const rowMatches = tableMatch.match(rowRegex)
+      if (rowMatches) {
+        for (const rowMatch of rowMatches) {
+          const cells: string[] = []
+          const cellMatches = rowMatch.match(cellRegex)
+          
+          if (cellMatches) {
+            for (const cellMatch of cellMatches) {
+              // Extract text content and clean HTML tags
+              const cellText = cellMatch.replace(/<[^>]*>/g, '').trim()
+              cells.push(cellText)
+            }
+          }
+          
+          if (cells.length > 0) {
+            rows.push(cells)
+          }
+        }
+      }
+      
+      if (rows.length > 0) {
+        const headers = rows[0]
+        const dataRows = rows.slice(1)
+        
+        const tableData: TableData = {
+          headers,
+          rows: dataRows,
+          style: {
+            borders: true,
+            headerShading: true,
+            alternatingRows: true
+          }
+        }
+        
+        tables.push(createLegalTable(tableData))
+      }
+    }
+  }
+  
+  return tables
+}
+
+/**
+ * Create professional legal document header
+ */
+export function createLegalHeader(formatting?: DocumentFormatting): Header {
+  const children: Paragraph[] = []
+  
+  if (formatting?.caseTitle) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: formatting.caseTitle,
+            bold: true,
+            size: 24, // 12pt
+            font: "Times New Roman"
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 120 }
+      })
+    )
+  }
+  
+  if (formatting?.courtName) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: formatting.courtName,
+            size: 22, // 11pt
+            font: "Times New Roman"
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 240 }
+      })
+    )
+  }
+  
+  return new Header({
+    children: children.length > 0 ? children : [
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "LEGAL DOCUMENT",
+            bold: true,
+            size: 24,
+            font: "Times New Roman"
+          })
+        ],
+        alignment: AlignmentType.CENTER
+      })
+    ]
+  })
+}
+
+/**
+ * Create professional legal document footer with page numbering
+ */
+export function createLegalFooter(formatting?: DocumentFormatting): Footer {
+  const children: Paragraph[] = []
+  
+  // Page numbering paragraph
+  if (formatting?.pageNumbering !== false) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Page 1",
+            size: 22,
+            font: "Times New Roman"
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 120 }
+      })
+    )
+  }
+  
+  // Footer text if provided
+  if (formatting?.caseTitle) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `${formatting.caseTitle} - Confidential`,
+            size: 20, // 10pt
+            font: "Times New Roman",
+            italics: true
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 120 }
+      })
+    )
+  }
+  
+  return new Footer({
+    children: children.length > 0 ? children : [
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "Page 1",
+            size: 22,
+            font: "Times New Roman"
+          })
+        ],
+        alignment: AlignmentType.CENTER
+      })
+    ]
+  })
+}
+
+/**
+ * Create legal document styles
+ */
+export function createLegalStyles(): any {
+  return {
+    default: {
+      document: {
+        run: {
+          font: "Times New Roman",
+          size: 24 // 12pt default
+        },
+        paragraph: {
+          spacing: {
+            line: 480, // 24pt exact line spacing (legal standard)
+            after: 240 // 12pt after paragraphs
+          }
+        }
+      }
+    },
+    paragraphStyles: [
+      {
+        id: "Heading1",
+        name: "Legal Heading 1",
+        basedOn: "Normal",
+        next: "Normal",
+        run: {
+          size: 32, // 16pt
+          bold: true,
+          font: "Times New Roman",
+          color: "000000"
+        },
+        paragraph: {
+          spacing: {
+            before: 480, // 24pt before
+            after: 240,  // 12pt after
+            line: 480    // 24pt line spacing
+          },
+          alignment: AlignmentType.CENTER
+        }
+      },
+      {
+        id: "Heading2",
+        name: "Legal Heading 2", 
+        basedOn: "Normal",
+        next: "Normal",
+        run: {
+          size: 28, // 14pt
+          bold: true,
+          font: "Times New Roman",
+          color: "000000"
+        },
+        paragraph: {
+          spacing: {
+            before: 360, // 18pt before
+            after: 240,  // 12pt after
+            line: 480    // 24pt line spacing
+          },
+          alignment: AlignmentType.LEFT
+        }
+      },
+      {
+        id: "Heading3",
+        name: "Legal Heading 3",
+        basedOn: "Normal", 
+        next: "Normal",
+        run: {
+          size: 26, // 13pt
+          bold: true,
+          font: "Times New Roman",
+          color: "000000"
+        },
+        paragraph: {
+          spacing: {
+            before: 240, // 12pt before
+            after: 120,  // 6pt after
+            line: 480    // 24pt line spacing
+          },
+          alignment: AlignmentType.LEFT
+        }
+      },
+      {
+        id: "LegalClause",
+        name: "Legal Clause",
+        basedOn: "Normal",
+        next: "Normal", 
+        run: {
+          size: 24, // 12pt
+          font: "Times New Roman"
+        },
+        paragraph: {
+          indent: {
+            left: convertInchesToTwip(0.5), // 0.5" left indent
+            hanging: convertInchesToTwip(0.25) // 0.25" hanging indent
+          },
+          spacing: {
+            before: 120, // 6pt before
+            after: 120,  // 6pt after
+            line: 480    // 24pt line spacing
+          }
+        }
+      },
+      {
+        id: "SignatureBlock",
+        name: "Signature Block",
+        basedOn: "Normal",
+        next: "Normal",
+        run: {
+          size: 24, // 12pt
+          font: "Times New Roman"
+        },
+        paragraph: {
+          spacing: {
+            before: 480, // 24pt before
+            after: 240,  // 12pt after
+            line: 480    // 24pt line spacing
+          },
+          alignment: AlignmentType.LEFT
+        }
+      }
+    ]
+  }
 }
 
 /**
