@@ -148,7 +148,7 @@ export default function EditDocumentPage() {
         content,
         docType: document.doc_type,
         metadata: {
-          author: user?.email || 'AI Law Agent User',
+          author: user?.email || 'Darrow User',
           created: new Date(document.created_at)
         }
       })
@@ -172,8 +172,8 @@ export default function EditDocumentPage() {
         title: title.trim(),
         content,
         metadata: {
-          author: user?.email || 'AI Law Agent User',
-          creator: 'AI Law Agent MVP'
+          author: user?.email || 'Darrow User',
+          creator: 'Darrow Legal Document Generation'
         }
       })
 

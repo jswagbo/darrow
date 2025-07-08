@@ -1,7 +1,7 @@
 import { logger } from './logger'
 
 /**
- * Standardized error types for the AI Law Agent MVP
+ * Standardized error types for the Darrow Legal Document Generation
  */
 export enum ErrorCode {
   // Authentication errors

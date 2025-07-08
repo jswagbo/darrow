@@ -5,10 +5,10 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Law Agent - MVP',
-  description: 'AI-powered legal document generation platform',
+  title: 'Darrow - Legal Document Generation',
+  description: 'Professional legal document generation powered by AI',
   keywords: ['legal', 'documents', 'AI', 'law', 'contracts'],
-  authors: [{ name: 'AI Law Agent' }],
+  authors: [{ name: 'Darrow' }],
 }
 
 export const viewport = {

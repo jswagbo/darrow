@@ -22,9 +22,9 @@ export async function generatePdf(options: PdfGenerationOptions): Promise<Uint8A
   
   // Set document metadata
   pdfDoc.setTitle(title)
-  pdfDoc.setAuthor(metadata?.author || 'AI Law Agent')
-  pdfDoc.setCreator(metadata?.creator || 'AI Law Agent MVP')
-  pdfDoc.setProducer(metadata?.producer || 'AI Law Agent')
+  pdfDoc.setAuthor(metadata?.author || 'Darrow')
+  pdfDoc.setCreator(metadata?.creator || 'Darrow Legal Document Generation')
+  pdfDoc.setProducer(metadata?.producer || 'Darrow')
   pdfDoc.setCreationDate(metadata?.creationDate || new Date())
   
   // Load fonts

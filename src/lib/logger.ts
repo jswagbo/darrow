@@ -1,5 +1,5 @@
 /**
- * Centralized logging system for AI Law Agent MVP
+ * Centralized logging system for Darrow Legal Document Generation
  */
 
 export enum LogLevel {

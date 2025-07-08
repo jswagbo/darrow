@@ -5,8 +5,8 @@ export default function HomePage() {
     <main className="flex-1 flex items-center justify-center">
       <div className="max-w-4xl mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          AI Law Agent
-          <span className="block text-silver mt-2">MVP</span>
+          Darrow
+          <span className="block text-silver mt-2">Legal Document Generation</span>
         </h1>
         
         <p className="text-xl md:text-2xl text-gray-light mb-8 max-w-2xl mx-auto">

@@ -54,7 +54,7 @@ function textToDocxParagraphs(content: string, docType?: DocumentType): Paragrap
       }
     }
 
-    // Check if this is a title/heading (all caps, short, or contains specific keywords)
+    // Check if this is a title/heading (all caps, bold markdown, or contains specific keywords)
     const firstLine = lines[0]
     const isTitle = (
       firstLine.length < 100 && 
@@ -65,7 +65,8 @@ function textToDocxParagraphs(content: string, docType?: DocumentType): Paragrap
        firstLine.includes('WHEREAS') ||
        firstLine.includes('ARTICLE') ||
        firstLine.includes('SECTION') ||
-       firstLine.includes('Re:'))
+       firstLine.includes('Re:') ||
+       (firstLine.startsWith('**') && firstLine.includes('**'))) // Markdown bold headers
     )
 
     if (isTitle) {
@@ -96,7 +97,7 @@ function textToDocxParagraphs(content: string, docType?: DocumentType): Paragrap
       }
     } else {
       // Special formatting for offer letter signature lines
-      if (docType === 'offer_letter' && section.includes('Date signed:')) {
+      if (docType === 'offer_letter' && (section.includes('Date:') || section.includes('_____') || section.includes('By:') || section.includes('ACCEPTANCE'))) {
         // Format signature section specially
         paragraphs.push(createSignatureParagraph(section))
       } else {
@@ -123,12 +124,21 @@ function createSignatureParagraph(text: string): Paragraph {
   const children: (TextRun)[] = []
   
   for (const line of lines) {
-    if (line.includes('Date signed:')) {
-      // Format the signature line with proper spacing
+    if (line.includes('Date:')) {
+      // Format signature lines with proper legal spacing
       children.push(
         new TextRun({
-          text: '\t\tDate signed: _______________\t',
-          size: 22,
+          text: line.replace('Date:', 'Date: _______________'),
+          size: 24,
+          font: "Times New Roman"
+        })
+      )
+    } else if (line.includes('_____')) {
+      // Format signature lines with proper spacing
+      children.push(
+        new TextRun({
+          text: line,
+          size: 24,
           font: "Times New Roman"
         })
       )
@@ -136,7 +146,7 @@ function createSignatureParagraph(text: string): Paragraph {
       children.push(
         new TextRun({
           text: line,
-          size: 22,
+          size: 24,
           font: "Times New Roman"
         })
       )
@@ -146,37 +156,73 @@ function createSignatureParagraph(text: string): Paragraph {
 
   return new Paragraph({
     children,
-    spacing: { after: 240 },
+    spacing: { 
+      before: 480, // 24pt before signature blocks
+      after: 240   // 12pt after
+    },
     alignment: AlignmentType.LEFT
   })
+}
+
+/**
+ * Parse text with markdown-style formatting and create TextRuns
+ */
+function parseFormattedText(text: string): TextRun[] {
+  const textRuns: TextRun[] = []
+  const parts = text.split(/(\*\*[^*]+\*\*)/)
+  
+  for (const part of parts) {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      // Bold text
+      const boldText = part.slice(2, -2) // Remove ** markers
+      textRuns.push(new TextRun({
+        text: boldText,
+        bold: true,
+        size: 24,
+        font: "Times New Roman"
+      }))
+    } else if (part.trim()) {
+      // Regular text
+      textRuns.push(new TextRun({
+        text: part,
+        size: 24,
+        font: "Times New Roman"
+      }))
+    }
+  }
+  
+  return textRuns.length > 0 ? textRuns : [new TextRun({
+    text: text,
+    size: 22,
+    font: "Times New Roman"
+  })]
 }
 
 /**
  * Create a properly formatted legal document paragraph
  */
 function createLegalParagraph(text: string): Paragraph {
-  // Check for numbered sections
+  // Check for numbered sections and formatting
   const isNumberedSection = /^\d+\./.test(text.trim())
   const isLetterSection = /^\([a-z]\)/.test(text.trim())
   const isIndentedSection = text.startsWith('    ') || text.startsWith('\t')
+  const isHeading = text.startsWith('**') && text.includes('**')
+  
+  // Parse text for formatting
+  const textRuns = parseFormattedText(text)
 
   return new Paragraph({
-    children: [
-      new TextRun({
-        text: text,
-        size: 22, // 11pt font - standard for legal docs
-        font: "Times New Roman" // Professional legal font
-      })
-    ],
+    children: textRuns,
     spacing: { 
-      after: 120, // 6pt after
-      line: 276 // 1.15 line spacing (276 = 115% of 240)
+      after: isHeading ? 200 : 120, // More space after headings
+      before: isHeading ? 200 : 0, // Space before headings
+      line: 480 // 24pt exact line spacing (legal standard)
     },
     indent: {
-      left: isIndentedSection ? 720 : isLetterSection ? 360 : 0, // Indent subsections
-      hanging: isNumberedSection ? 360 : 0 // Hanging indent for numbered items
+      left: isIndentedSection ? 720 : isLetterSection ? 360 : 0,
+      hanging: isNumberedSection ? 360 : 0
     },
-    alignment: AlignmentType.BOTH // Justify text for legal docs
+    alignment: isHeading ? AlignmentType.LEFT : AlignmentType.BOTH
   })
 }
 
@@ -213,9 +259,11 @@ export async function generateDocx(options: DocxGenerationOptions): Promise<Uint
   
   // Create document with professional legal document settings
   const doc = new Document({
-    creator: metadata?.author || 'AI Law Agent',
+    creator: metadata?.author || 'Darrow',
     title: title,
-    description: `${docType} generated by AI Law Agent`,
+    description: `${docType} generated by Darrow`,
+    subject: docType === 'offer_letter' ? 'Employment Offer Letter' : `Legal Document - ${docType}`,
+    keywords: docType === 'offer_letter' ? 'employment, offer, legal, contract' : `legal, document, ${docType}`,
     sections: [
       {
         properties: {
@@ -224,11 +272,11 @@ export async function generateDocx(options: DocxGenerationOptions): Promise<Uint
               top: 1440,    // 1 inch (1440 twips)
               right: 1440,  // 1 inch
               bottom: 1440, // 1 inch
-              left: 1440    // 1 inch
+              left: 1800    // 1.25 inches (1800 twips) - Legal standard for binding
             },
             size: {
               width: 12240,  // 8.5 inches (12240 twips)
-              height: 15840  // 11 inches (15840 twips) - US Letter
+              height: 20160  // 14 inches (20160 twips) - US Legal paper
             }
           }
         },
@@ -240,12 +288,12 @@ export async function generateDocx(options: DocxGenerationOptions): Promise<Uint
         document: {
           run: {
             font: "Times New Roman",
-            size: 22 // 11pt default
+            size: 24 // 12pt default
           },
           paragraph: {
             spacing: {
-              line: 276, // 1.15 line spacing
-              after: 120 // 6pt after paragraphs
+              line: 480, // 24pt exact line spacing (legal standard)
+              after: 240 // 12pt after paragraphs
             }
           }
         }

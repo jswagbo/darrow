@@ -1,4 +1,4 @@
-# Employment Offer Letter Template
+# Employment Offer Letter
 
 **{{COMPANY_NAME}}**
 {{COMPANY_ADDRESS}}
@@ -8,53 +8,71 @@
 {{CANDIDATE_NAME}}
 {{CANDIDATE_ADDRESS}}
 
+**Re: Offer of Employment - {{JOB_TITLE}}**
+
 Dear {{CANDIDATE_NAME}},
 
-We are pleased to offer you the position of **{{JOB_TITLE}}** with {{COMPANY_NAME}} (the "Company"). We believe your skills and experience will be a valuable addition to our team.
+We are pleased to extend to you an offer of employment for the position of **{{JOB_TITLE}}** with {{COMPANY_NAME}} (the "Company"). This offer is contingent upon the terms and conditions set forth below.
 
-## Position Details
+## 1. POSITION AND DUTIES
 
 **Position:** {{JOB_TITLE}}
 **Department:** {{DEPARTMENT}}
-**Reports to:** {{MANAGER_NAME}}, {{MANAGER_TITLE}}
+**Reporting Relationship:** You will report directly to {{MANAGER_NAME}}, {{MANAGER_TITLE}}
 **Start Date:** {{START_DATE}}
-**Employment Type:** {{EMPLOYMENT_TYPE}}
+**Employment Classification:** {{EMPLOYMENT_TYPE}}
 
-## Compensation and Benefits
+## 2. COMPENSATION
 
-**Base Salary:** ${{ANNUAL_SALARY}} per year, paid {{PAY_FREQUENCY}}
-**Bonus:** {{BONUS_DETAILS}}
-**Equity:** {{EQUITY_DETAILS}}
-**Benefits:** {{BENEFITS_SUMMARY}}
-**Vacation:** {{VACATION_DAYS}} days per year
-**Sick Leave:** {{SICK_LEAVE_DAYS}} days per year
+**Base Salary:** Your annual base salary will be ${{ANNUAL_SALARY}}, payable in accordance with the Company's regular payroll schedule ({{PAY_FREQUENCY}}).
 
-## Terms and Conditions
+**Performance Bonus:** {{BONUS_DETAILS}}
 
-1. **At-Will Employment:** Your employment with the Company is at-will, meaning either you or the Company may terminate the employment relationship at any time, with or without cause or notice.
+**Equity Compensation:** {{EQUITY_DETAILS}}
 
-2. **Confidentiality:** You will be required to sign the Company's standard Employee Confidentiality and Invention Assignment Agreement.
+## 3. BENEFITS
 
-3. **Work Authorization:** This offer is contingent upon your providing documentation establishing your eligibility to work in the United States.
+You will be eligible to participate in the Company's benefit programs, including but not limited to:
 
-4. **Background Check:** {{BACKGROUND_CHECK_REQUIREMENTS}}
+{{BENEFITS_SUMMARY}}
 
-## Next Steps
+**Paid Time Off:** {{VACATION_DAYS}} days of vacation per calendar year
+**Sick Leave:** {{SICK_LEAVE_DAYS}} days of sick leave per calendar year
 
-Please confirm your acceptance of this offer by signing and returning this letter by {{RESPONSE_DEADLINE}}. If you have any questions, please contact me at {{CONTACT_EMAIL}} or {{CONTACT_PHONE}}.
+## 4. TERMS AND CONDITIONS OF EMPLOYMENT
 
-We look forward to welcoming you to the {{COMPANY_NAME}} team!
+**4.1 At-Will Employment:** Your employment with the Company is at-will, meaning either you or the Company may terminate the employment relationship at any time, with or without cause or notice, subject to applicable law.
+
+**4.2 Confidentiality and Proprietary Information:** As a condition of employment, you will be required to execute the Company's standard Employee Confidentiality and Invention Assignment Agreement prior to your start date.
+
+**4.3 Work Authorization:** This offer is contingent upon your providing satisfactory documentation establishing your eligibility to work in the United States in accordance with the Immigration Reform and Control Act of 1986.
+
+**4.4 Background Verification:** {{BACKGROUND_CHECK_REQUIREMENTS}}
+
+## 5. ACCEPTANCE AND RESPONSE
+
+This offer will remain open until {{RESPONSE_DEADLINE}}. To accept this offer, please sign and date both copies of this letter and return one copy to the undersigned. Please retain the other copy for your records.
+
+If you have any questions regarding this offer, please contact me at {{CONTACT_EMAIL}} or {{CONTACT_PHONE}}.
+
+We look forward to welcoming you to the {{COMPANY_NAME}} team.
 
 Sincerely,
 
-_________________________
-{{HIRING_MANAGER_NAME}}
-{{HIRING_MANAGER_TITLE}}
 {{COMPANY_NAME}}
 
-**ACCEPTANCE**
 
-I accept the terms of employment as outlined in this letter.
+By: _____________________________
+{{HIRING_MANAGER_NAME}}
+{{HIRING_MANAGER_TITLE}}
+Date: ___________________________
 
-_________________________                    Date: ___________
+
+**ACCEPTANCE OF EMPLOYMENT OFFER**
+
+I hereby accept the above offer of employment and agree to the terms and conditions set forth herein.
+
+
+_____________________________          Date: _______________
 {{CANDIDATE_NAME}}
+Print Name: {{CANDIDATE_NAME}}

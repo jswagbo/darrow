@@ -213,7 +213,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
           content: generatedContent,
           metadata: {
             author: user.email || 'AI Law Agent User',
-            creator: 'AI Law Agent MVP'
+            creator: 'Darrow Legal Document Generation'
           }
         })
 

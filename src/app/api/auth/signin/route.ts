@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { getFullUrl } from '@/lib/env'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,17 +14,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine the redirect URL based on environment
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://constructa-starter-min-main-jeff-nwagbos-projects-6f9cdfa7.vercel.app'
-      : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    // Get the dashboard URL dynamically
+    const dashboardUrl = getFullUrl('/dashboard')
     
-    console.log('Magic link redirect URL:', `${baseUrl}/dashboard`)
+    console.log('Magic link redirect URL:', dashboardUrl)
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${baseUrl}/dashboard`
+        emailRedirectTo: dashboardUrl
       }
     })
 

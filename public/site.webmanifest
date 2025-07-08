@@ -1,6 +1,7 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Darrow - Legal Document Generation",
+    "short_name": "Darrow",
+    "description": "Professional legal document generation powered by AI",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

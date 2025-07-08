@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* AI Law Agent Custom Color Palette */
+  /* Darrow Custom Color Palette */
   --background: 0 0% 0%; /* pure black */
   --foreground: 0 0% 100%; /* pure white */
 
@@ -35,7 +35,7 @@
   --radius: 0.5rem;
 }
 
-/* Override default styles for AI Law Agent theme */
+/* Override default styles for Darrow theme */
 body {
   background-color: #000000;
   color: #ffffff;

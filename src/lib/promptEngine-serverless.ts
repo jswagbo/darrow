@@ -62,7 +62,7 @@ You are a legal document assistant specialized in Y Combinator SAFE (Simple Agre
 
 ## System Instructions
 
-You are a legal document assistant specialized in employment offer letters. Your role is to ONLY fill in the placeholder values marked with {{PLACEHOLDER_NAME}} in the template. You must NEVER modify the legal language, structure, or format of the template.
+You are a legal document assistant specialized in employment offer letters. Your role is to ONLY fill in the placeholder values marked with {{PLACEHOLDER_NAME}} in the professional EPG template. You must NEVER modify the legal language, structure, or format of the template.
 
 ## Critical Rules:
 1. ONLY replace text inside double curly braces {{LIKE_THIS}}
@@ -70,19 +70,18 @@ You are a legal document assistant specialized in employment offer letters. Your
 3. NEVER add or remove sections
 4. NEVER change the legal structure or format
 5. Use appropriate legal formatting and capitalization
+6. Maintain all arbitration clauses and legal provisions exactly as written
 
 ## Template Placeholders to Fill:
 
+- {{COMPANY_NAME}} - Full legal name of the company
+- {{COMPANY_ADDRESS}} - Company's full mailing address
 - {{DATE}} - Current date for the offer letter
 - {{CANDIDATE_NAME}} - Full name of job candidate
-- {{CANDIDATE_ADDRESS}} - Candidate's mailing address
-- {{COMPANY_NAME}} - Full legal name of the company
 - {{JOB_TITLE}} - Official job title
-- {{REPORTING_MANAGER}} - Name of direct manager/supervisor
-- {{EXEMPT_STATUS}} - "an exempt" or "a non-exempt" employment status
-- {{WORK_LOCATION}} - Office location (city/state)
 - {{START_DATE}} - Employment start date
 - {{ANNUAL_SALARY}} - Annual base salary amount (numbers only, no $)
+- {{REPORTING_MANAGER}} - Name of direct manager/supervisor
 - {{STOCK_OPTIONS}} - Number of stock option shares (if applicable)
 - {{PLAN_NAME}} - Name of stock option plan (e.g., "2024 Equity Incentive Plan")
 - {{VESTING_CLIFF}} - Cliff vesting percentage (usually 25)
@@ -164,65 +163,71 @@ _____________________
 
     safe_post: `[DOCX_TEMPLATE_YC_SAFE_POST_MONEY]`,
 
-    offer_letter: `{{DATE}}
+    offer_letter: `\{{COMPANY_NAME}}
+
+\{{COMPANY_ADDRESS}}
+
+\{{DATE}}
 
 
-{{CANDIDATE_NAME}}
-{{CANDIDATE_ADDRESS}}
 
-Re:	Offer of Employment by {{COMPANY_NAME}}
+Dear \{{CANDIDATE_NAME}},
 
-Dear {{CANDIDATE_NAME}}: 
 
-I am very pleased to confirm our offer to you of employment with {{COMPANY_NAME}} (the "Company").  The terms of our offer and the benefits currently provided by the Company are as follows:
 
-Position and Start Date.  You are being offered the position of {{JOB_TITLE}}, reporting to {{REPORTING_MANAGER}}.  This is {{EXEMPT_STATUS}} position based in our {{WORK_LOCATION}} office.  Your anticipated start date will be {{START_DATE}}.  
+We are pleased to offer you employment with \{{COMPANY_NAME}} in the position of \{{JOB_TITLE}}.
 
-Starting Salary.  Your starting salary will be ${{ANNUAL_SALARY}} per year and will be subject to annual review. 
 
-Benefits.  In addition, you will be eligible to participate in regular health insurance, bonus and other employee benefit plans established by the Company for its employees from time to time.  
 
-The Company reserves the right to change or otherwise modify, in its sole discretion, the preceding terms of employment.
+**Employment Terms**
 
-Stock Option.  We will recommend to the Board of Directors of the Company (the "Board") that you be granted the option to purchase up to {{STOCK_OPTIONS}} shares of Common Stock of the Company under our {{PLAN_NAME}} (the "Plan") at the fair market value of the Company's Common Stock, as determined by the Board on the date the Board approves such grant.  The shares subject to the stock option will vest at the rate of {{VESTING_CLIFF}}% at the end of your first anniversary with the Company, and an additional {{MONTHLY_VESTING}}% per month thereafter, for so long as you remain employed by the Company through each vesting date.  However, the grant of such option by the Company is subject to the Board's approval.  Further details on the Plan and any specific option grant to you will be provided upon approval of such grant by the Board.
+**Position:** \{{JOB_TITLE}}
 
-Protection of Confidential and Proprietary Information.  As an employee of the Company, you will have access to certain confidential information of the Company and you may, during the course of your employment, develop certain information or inventions that will be the property of the Company.  To protect the Company's interests, as a condition of employment, you must sign and abide by the Company's standard "Employee Invention Assignment and Confidentiality Agreement."  
+**Start Date:** \{{START_DATE}}
 
-No Breach of Obligations to Prior Employers.  We wish to impress upon you that we do not want you to, and we hereby direct you not to, bring with you any confidential or proprietary material of any former employer or violate any other obligations you may have to any former employer.  You represent that your signing of this offer letter, agreement(s) concerning stock options granted to you, if any, under the Plan and the Company's Employee Invention Assignment and Confidentiality Agreement and your commencement of employment with the Company will not violate any agreement currently in place between yourself and current or past employers.
+**Annual Salary:** $\{{ANNUAL_SALARY}}
 
-No Competition During Employment.  During the period that you render services to the Company, you agree to not engage in any employment, business or activity that is in any way competitive with the business or proposed business of the Company.  You will disclose to the Company in writing any other gainful employment, business or activity that you are currently associated with or participate in that competes with the Company.  You will not assist any other person or organization in competing with the Company or in preparing to engage in competition with the business or proposed business of the Company.  
+**Reporting Manager:** \{{REPORTING_MANAGER}}
 
-At Will Employment.  Employment with the Company is for no specific period of time.  Should you accept our offer, you will be an at-will employee of the Company, which means the employment relationship can be terminated by either of us for any reason, at any time, with or without prior notice and with or without cause.  Any statements or representations to the contrary (and, indeed, any statements contradicting any provision in this letter) are superseded by this agreement.  Further, your participation in any stock option or benefit program is not to be regarded as assuring you of continuing employment for any particular period of time.  Although your job duties, title, compensation and benefits, as well as the Company's personnel policies and practices, may change from time to time, the "at-will" nature of your employment may be changed only in an express, written employment agreement signed by you and a duly authorized officer of the Company (other than you).
+**Benefits:** This position includes our standard benefits package, including health insurance, dental insurance, and 401(k) participation, subject to the terms and conditions of the applicable benefit plans.
 
-Tax Matters.  All forms of compensation referred to in this agreement are subject to reduction to reflect applicable withholding and payroll taxes and other deductions required by law.  
 
-Authorization to Work.  Please note that because of employer regulations adopted in the Immigration Reform and Control Act of 1986, within three (3) business days of starting your new position you will need to present documentation demonstrating that you have authorization to work in the United States.  If you have questions about this requirement, which applies to U.S. citizens and non-U.S. citizens alike, you may contact our personnel office.
 
-Arbitration and Class and Collective Action Waiver.  To the fullest extent permitted by law, you and the Company agree to submit to mandatory binding arbitration, pursuant to and governed by the Federal Arbitration Act (the "FAA"), any and all claims that (a) you may have against the Company and its directors, officers, owners, employees, agents, successors and assigns, and (b) the Company may have against you, arising out of or related to your employment with the Company and the termination thereof, including, but not limited to, claims for unpaid wages, wrongful termination, torts, stock or stock options or other ownership interest in the Company, discrimination, harassment and/or retaliation based upon any federal, state or local ordinance, statute, regulation or constitutional provision, and individual claims under the California Private Attorneys General Act (California Labor Code Section 2698, et seq.) ("PAGA") (collectively, "Arbitrable Claims").  Further, to the fullest extent permitted by law, you and the Company agree that no class or collective actions can be asserted in arbitration, court or any other forum.  All claims must be brought solely in your or the Company's individual capacity, and not as a plaintiff or class member in any purported class or collective proceeding.
+**Stock Options:** We will recommend to the Board of Directors that you be granted the option to purchase up to \{{STOCK_OPTIONS}} shares of Common Stock under our \{{PLAN_NAME}} at fair market value. The shares will vest at \{{VESTING_CLIFF}}% after your first anniversary, then \{{MONTHLY_VESTING}}% per month thereafter, subject to Board approval.
 
-Notwithstanding the foregoing, nothing in this arbitration provision restricts: (w) your right under the FAA to elect to pursue claims for sexual harassment and/or sexual assault in court, on an individual, class action or collective action basis; (x) your right, if any, to file in court a non-individual, representative action under PAGA, if you have standing to pursue such an action and it is permitted under applicable law; (y) your right to file administrative claims you may bring before any government agency where, as a matter of law, the parties may not restrict the employee's ability to file such claims (including, but not limited to, the National Labor Relations Board, the Equal Employment Opportunity Commission and the Department of Labor, and before state agencies in connection with claims for workers' compensation, unemployment and/or disability insurance benefits); or (z) a party's right to seek injunctive or other provisional relief in court, where permitted by applicable law, including, but not limited to, in connection with the misappropriation of a party's private, proprietary, confidential or trade secret information.
 
-SUBJECT TO THE ABOVE, THE PARTIES HEREBY WAIVE ANY RIGHTS THEY MAY HAVE TO TRIAL BY JURY IN REGARD TO ARBITRABLE CLAIMS.  THE PARTIES FURTHER WAIVE ANY RIGHTS THEY MAY HAVE TO PURSUE OR PARTICIPATE IN A CLASS OR COLLECTIVE ACTION PERTAINING TO ANY CLAIMS BETWEEN YOU AND THE COMPANY.
 
-The arbitration shall be conducted through JAMS before a single neutral arbitrator, in accordance with the JAMS employment arbitration rules then in effect, provided however, that the FAA, including its procedural provisions for compelling arbitration, shall govern and apply to this arbitration provision.  The JAMS rules may be found at https://www.jamsadr.com/rules-employment.  If you are unable to access these rules, please let me know and I will provide you with a hardcopy.  Unless the parties agree otherwise, the arbitration hearing shall take place in the JAMS office nearest to your current or most recent former place of work.  The arbitrator shall issue a written decision that contains the essential findings and conclusions on which the decision is based.  This arbitration provision is governed by and will be construed in accordance with the FAA, and it shall only apply to claims that are subject to mandatory binding arbitration under applicable law.  If, for any reason, any term of this arbitration provision is held to be invalid or unenforceable, all other valid terms and conditions herein shall be severable in nature and remain fully enforceable.
+**Employment Relationship:** This offer is contingent upon satisfactory completion of our standard background check process. Your employment with \{{COMPANY_NAME}} is at-will, meaning that either you or the company may terminate the employment relationship at any time, with or without cause or notice.
 
-Background Check.  This offer is contingent upon a satisfactory verification of criminal, education, driving and/or employment background.  This offer can be rescinded based upon data received in the verification.
 
-Entire Agreement.  This offer, once accepted, constitutes the entire agreement between you and the Company with respect to the subject matter hereof and supersedes all prior offers, negotiations and agreements, if any, whether written or oral, relating to such subject matter.  You acknowledge that neither the Company nor its agents have made any promise, representation or warranty whatsoever, either express or implied, written or oral, which is not contained in this agreement for the purpose of inducing you to execute the agreement, and you acknowledge that you have executed this agreement in reliance only upon such promises, representations and warranties as are contained herein.  
 
-Acceptance.  This offer will remain open until {{OFFER_EXPIRATION_DATE}}.  If you decide to accept our offer, and I hope you will, please sign the enclosed copy of this letter in the space indicated and return it to me.  Your signature will acknowledge that you have read and understood and agreed to the terms and conditions of this offer letter and the attached documents, if any.  Should you have anything else that you wish to discuss, please do not hesitate to call me.
+**Confidentiality:** As a condition of employment, you must sign and abide by our standard Employee Invention Assignment and Confidentiality Agreement.
 
-We look forward to the opportunity to welcome you to the Company.
 
-Very truly yours,
 
-{{HIRING_MANAGER_NAME}}, {{HIRING_MANAGER_TITLE}}
+Please confirm your acceptance of this offer by signing and returning this letter by \{{OFFER_EXPIRATION_DATE}}.
 
-I have read and understood this offer letter and hereby acknowledge, accept and agree to the terms as set forth above and further acknowledge that no other commitments were made to me as part of my employment offer except as specifically set forth herein.
 
-		Date signed: _______________	
 
-{{CANDIDATE_NAME}}`,
+We look forward to having you join our team!
+
+Sincerely,
+
+\{{HIRING_MANAGER_NAME}}
+
+\{{HIRING_MANAGER_TITLE}}
+
+
+
+---
+
+**\{{COMPANY_NAME}}**
+
+I accept the terms of this offer:
+
+**Signature:** _________________________________    **Date:** ___________
+
+\{{CANDIDATE_NAME}}`,
 
     rspa: `RESTRICTED STOCK PURCHASE AGREEMENT
 

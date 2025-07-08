@@ -25,7 +25,7 @@ export default function AuthSimplePage({ searchParams }: AuthSimplePageProps) {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
               <Zap className="h-8 w-8 text-silver" />
-              <h1 className="text-2xl font-bold text-white">AI Law Agent</h1>
+              <h1 className="text-2xl font-bold text-white">Darrow</h1>
             </div>
             <p className="text-gray-light">
               Sign in to access your legal document workspace

@@ -16,7 +16,7 @@ interface OnboardingStep {
 const onboardingSteps: OnboardingStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to AI Law Agent',
+    title: 'Welcome to Darrow',
     description: 'Your AI-powered legal document assistant. Create professional legal documents in minutes.',
     icon: <Sparkles className="h-8 w-8" />,
     highlight: 'Generate 3 documents per day'
@@ -235,8 +235,8 @@ export function useOnboarding() {
   const [showOnboarding, setShowOnboarding] = useState(false)
 
   useEffect(() => {
-    // Check if user has seen onboarding
-    const seen = localStorage.getItem('ai-law-agent-onboarding-seen')
+    // Check if user has seen onboarding (check both new and legacy keys)
+    const seen = localStorage.getItem('darrow-onboarding-seen') || localStorage.getItem('ai-law-agent-onboarding-seen')
     if (!seen) {
       setHasSeenOnboarding(false)
       setShowOnboarding(true)
@@ -244,12 +244,15 @@ export function useOnboarding() {
   }, [])
 
   const completeOnboarding = () => {
-    localStorage.setItem('ai-law-agent-onboarding-seen', 'true')
+    localStorage.setItem('darrow-onboarding-seen', 'true')
+    // Also remove legacy key if it exists
+    localStorage.removeItem('ai-law-agent-onboarding-seen')
     setHasSeenOnboarding(true)
     setShowOnboarding(false)
   }
 
   const resetOnboarding = () => {
+    localStorage.removeItem('darrow-onboarding-seen')
     localStorage.removeItem('ai-law-agent-onboarding-seen')
     setHasSeenOnboarding(false)
     setShowOnboarding(true)
