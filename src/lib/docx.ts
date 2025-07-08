@@ -259,10 +259,13 @@ function createSignatureParagraph(text: string): Paragraph {
  */
 function parseFormattedText(text: string): TextRun[] {
   const textRuns: TextRun[] = []
-  const parts = text.split(/(\*\*[^*]+\*\*)/)
+  
+  // Enhanced regex to handle multiple formatting types:
+  // **bold**, *italic*, __underline__, ~~strikethrough~~
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__|~~[^~]+~~)/)
   
   for (const part of parts) {
-    if (part.startsWith('**') && part.endsWith('**')) {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
       // Bold text
       const boldText = part.slice(2, -2) // Remove ** markers
       textRuns.push(new TextRun({
@@ -271,8 +274,37 @@ function parseFormattedText(text: string): TextRun[] {
         size: 24,
         font: "Times New Roman"
       }))
-    } else if (part.trim()) {
-      // Regular text
+    } else if (part.startsWith('__') && part.endsWith('__') && part.length > 4) {
+      // Underlined text
+      const underlineText = part.slice(2, -2) // Remove __ markers
+      textRuns.push(new TextRun({
+        text: underlineText,
+        underline: {
+          type: UnderlineType.SINGLE
+        },
+        size: 24,
+        font: "Times New Roman"
+      }))
+    } else if (part.startsWith('~~') && part.endsWith('~~') && part.length > 4) {
+      // Strikethrough text
+      const strikeText = part.slice(2, -2) // Remove ~~ markers
+      textRuns.push(new TextRun({
+        text: strikeText,
+        strike: true,
+        size: 24,
+        font: "Times New Roman"
+      }))
+    } else if (part.startsWith('*') && part.endsWith('*') && part.length > 2 && !part.startsWith('**')) {
+      // Italic text
+      const italicText = part.slice(1, -1) // Remove * markers
+      textRuns.push(new TextRun({
+        text: italicText,
+        italics: true,
+        size: 24,
+        font: "Times New Roman"
+      }))
+    } else if (part.length > 0) {
+      // Regular text (preserve all content including spaces)
       textRuns.push(new TextRun({
         text: part,
         size: 24,
@@ -283,7 +315,7 @@ function parseFormattedText(text: string): TextRun[] {
   
   return textRuns.length > 0 ? textRuns : [new TextRun({
     text: text,
-    size: 22,
+    size: 24,
     font: "Times New Roman"
   })]
 }

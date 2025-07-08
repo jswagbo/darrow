@@ -77,30 +77,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
       }, { status: 401 })
     }
 
-    // Check rate limit - fallback to manual count if functions don't exist
-    let canCreate = await canCreateDocServer(user.id)
-    if (!canCreate) {
-      console.log('Primary rate limit check failed, trying fallback method')
-      
-      // Fallback: manually count documents if function doesn't exist
-      try {
-        const todayCount = await getTodayDocCountServer(user.id)
-        canCreate = todayCount < 3
-        console.log(`Fallback rate limit check: ${todayCount}/3 documents today`)
-      } catch (fallbackError) {
-        console.error('Fallback rate limit check failed:', fallbackError)
-        // If both methods fail, allow creation but log the issue
-        canCreate = true
-      }
-    }
-    
-    if (!canCreate) {
-      const todayCount = await getTodayDocCountServer(user.id)
-      return NextResponse.json({
-        success: false,
-        ...rateLimitError(3 - todayCount)
-      }, { status: 429 })
-    }
+    // Rate limit disabled - allow unlimited document creation
+    console.log('Document rate limit disabled - allowing creation')
 
     // Create document record (draft status)
     const { data: document, error: createError } = await supabaseAdmin

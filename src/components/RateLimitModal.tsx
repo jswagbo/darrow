@@ -60,7 +60,7 @@ export default function RateLimitModal({
           {isAtLimit ? (
             <div className="space-y-4">
               <p className="text-gray-light">
-                You have reached your daily limit of <strong className="text-white">3 documents</strong>.
+                Document limits have been disabled. You can create unlimited documents.
               </p>
               
               <div className="bg-red-900 bg-opacity-20 border border-red-500 rounded-lg p-4">
@@ -131,7 +131,7 @@ export function UsageIndicator({
   className,
   compact = false 
 }: UsageIndicatorProps) {
-  const total = 3
+  const total = 999999
   const percentage = (docsCreated / total) * 100
   
   const getStatusColor = () => {

@@ -61,7 +61,7 @@ RETURNS BOOLEAN
 LANGUAGE SQL
 SECURITY DEFINER
 AS $$
-  SELECT COUNT(*) < 3
+  SELECT TRUE -- Limit disabled
   FROM docs
   WHERE user_id = uid
     AND created_day = CURRENT_DATE;
@@ -75,12 +75,11 @@ CREATE POLICY "Users can view own documents"
   ON docs FOR SELECT
   USING (auth.uid() = user_id);
 
--- Users can insert documents if they haven't hit rate limit
+-- Users can insert documents (rate limit disabled)
 CREATE POLICY "Users can create documents with rate limit"
   ON docs FOR INSERT
   WITH CHECK (
-    auth.uid() = user_id 
-    AND can_create_doc(auth.uid())
+    auth.uid() = user_id
   );
 
 -- Users can update their own documents
@@ -105,7 +104,7 @@ SECURITY DEFINER
 AS $$
   SELECT 
     COUNT(*)::INTEGER as docs_created,
-    (3 - COUNT(*))::INTEGER as docs_remaining
+    999999::INTEGER as docs_remaining
   FROM docs
   WHERE user_id = uid
     AND created_day = CURRENT_DATE;

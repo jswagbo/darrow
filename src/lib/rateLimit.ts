@@ -22,7 +22,7 @@ export async function canCreateDoc(userId: string): Promise<boolean> {
       return false
     }
 
-    return (data?.length ?? 0) < 3
+    return true // Limit disabled
   } catch (error) {
     console.error('Error in canCreateDoc:', error)
     return false
@@ -39,13 +39,13 @@ export async function getDailyUsage(userId: string): Promise<DailyUsage> {
 
     if (error) {
       console.error('Error getting daily usage:', error)
-      return { docs_created: 0, docs_remaining: 3 }
+      return { docs_created: 0, docs_remaining: 999999 }
     }
 
-    return data[0] || { docs_created: 0, docs_remaining: 3 }
+    return data[0] || { docs_created: 0, docs_remaining: 999999 }
   } catch (error) {
     console.error('Error in getDailyUsage:', error)
-    return { docs_created: 0, docs_remaining: 3 }
+    return { docs_created: 0, docs_remaining: 999999 }
   }
 }
 
@@ -75,7 +75,7 @@ export async function canCreateDocServer(userId: string): Promise<boolean> {
       return false
     }
 
-    return data === true
+    return true // Limit disabled
   } catch (error) {
     console.error('Error in canCreateDocServer:', {
       error,
@@ -117,7 +117,7 @@ export async function getTodayDocCountServer(userId: string): Promise<number> {
 export function rateLimitError(remainingDocs: number = 0) {
   return {
     error: 'Rate limit exceeded',
-    message: `You have reached your daily limit of 3 documents. ${remainingDocs} remaining today.`,
+    message: `Daily document limit has been disabled. Unlimited documents allowed.`,
     code: 'RATE_LIMIT_EXCEEDED',
     remainingDocs
   }
