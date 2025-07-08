@@ -242,4 +242,3 @@ export function getFormattingComparisonSummary(): string {
 - **Microsoft Word Compatible:** Perfect rendering in Word applications
   `
 }
-`
