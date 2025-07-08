@@ -29,10 +29,24 @@ export default function AuthForm() {
     setMessage(null)
 
     try {
+      // Get the correct redirect URL for production
+      const getRedirectUrl = () => {
+        if (typeof window !== 'undefined') {
+          // In browser, use current origin
+          return `${window.location.origin}/dashboard`
+        }
+        
+        // Server-side fallback
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` :
+                       'http://localhost:3000'
+        return `${baseUrl}/dashboard`
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          emailRedirectTo: `${typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`
+          emailRedirectTo: getRedirectUrl()
         }
       })
 

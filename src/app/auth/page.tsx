@@ -54,7 +54,7 @@ export default function AuthPage() {
           <div className="mt-8 grid grid-cols-1 gap-4">
             <div className="flex items-center gap-3 text-sm text-gray-light">
               <div className="w-2 h-2 bg-silver rounded-full"></div>
-              <span>Generate 3 documents per day</span>
+              <span>Generate unlimited documents</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-gray-light">
               <div className="w-2 h-2 bg-silver rounded-full"></div>

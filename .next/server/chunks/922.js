@@ -1,1 +1,0 @@
-"use strict";exports.id=922,exports.ids=[922],exports.modules={1922:(t,r,e)=>{e.r(r),e.d(r,{default:()=>s});let s=(0,e(5225).createProxy)(String.raw`/Users/jeffnwagbo/AI Law Firm/constructa-starter-min-main/src/components/AuthForm.tsx#default`)}};
